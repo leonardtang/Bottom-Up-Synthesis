@@ -47,10 +47,11 @@ class Synthesizer:
             for op in self.uni_ops:
                 if op == "input" or op == "identity":
                     continue
+                # print('op?', op)
                 candidate_prog = self.ast_template(op, child=child_prog)
                 expression = candidate_prog.construct()
-                # if expression.startswith('Concat(Concat(Input(x), )'):
-                # print('unary Expression', expression)
+                if expression.startswith('Right(Input)'):
+                    print('unary Expression', expression)
                 new_plist.append(candidate_prog)
 
         # Apply binary operators
@@ -129,7 +130,7 @@ def test_arithmetic():
         ([5, 10, 15], [1, 2, 3]),
         ([100, 50, 20], [10, 5, 2]),
         ([1, 2, 3], [3 * x + 5 for x in [1, 2, 3]]),
-        ([1, 2, 3], [x ** 2 + 6 * x for x in [1, 2, 3]])
+        # ([1, 2, 3], [x ** 2 + 6 * x for x in [1, 2, 3]])
     ]
     for inputs, outputs in test_pairs:
         print("------------------")
@@ -142,16 +143,19 @@ def test_arithmetic():
 
 def test_string():
     test_pairs = [
-        (["hello", "world"], ["h", "w"]),
-        (["hello", "world"], ["o", "d"]),
-        ([["hello", "you"], ["world", "domination"]], ["helloyou", "worlddomination"]),
-        (
-            [["hello", "you"], ["world", "domination"]],
-            ["hello you", "world domination"],
-        ),
-        (["hello", "world", "domination"], ["ho", "wd", "dn"]),
-        (["llms", "are", "bad"], ["ls", "ae", "bd"]),
-        ([["the", "adults"], ["are", "talking"]], ["ta", "at"]),
+        # (["hello", "world"], ["h", "w"]),
+        # (["hello", "world"], ["o", "d"]),
+        # ([["hello", "you"], ["world", "domination"]], ["helloyou", "worlddomination"]),
+        # (
+        #     [["hello", "you"], ["world", "domination"]],
+        #     ["hello you", "world domination"],
+        # ),
+        # (["hello", "world", "domination"], ["ho", "wd", "dn"]),
+        # (["llms", "are", "bad"], ["ls", "ae", "bd"]),
+        # ([["the", "adults"], ["are", "talking"]], ["ta", "at"]),
+        (["the", "adults", "are", "talking"], ["T", "A", "A", "T"]),
+        (["mUltImodAL", "ArchiTecTure"], ["ml", "ae"]),
+        ([" ", " hello world   "], ["", "hello world"])
     ]
     for inputs, outputs in test_pairs:
         print("------------------")

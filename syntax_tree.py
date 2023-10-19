@@ -93,6 +93,9 @@ class StringSyntaxTree(AbstractSyntaxTree):
             "concat",
             "right",
             "left",
+            "upper",
+            "lower",
+            "trim",
             "input",
             "input_x",
             "input_y",
@@ -101,6 +104,9 @@ class StringSyntaxTree(AbstractSyntaxTree):
         self.unary_operators = [
             "right",
             "left",
+            "upper",
+            "lower",
+            "trim",
             "input",
             "input_x",
             "input_y",
@@ -113,7 +119,7 @@ class StringSyntaxTree(AbstractSyntaxTree):
             self.left = None
             self.right = None
             self.child = None
-        elif operator in {"identity", "left", "right"}:
+        elif operator in {"identity", "left", "right", "lower", "upper", "trim"}:
             assert child is not None
             self.left = None
             self.right = None
@@ -145,6 +151,12 @@ class StringSyntaxTree(AbstractSyntaxTree):
             return self.child.evaluate(input_val)[0]
         elif self.operator == "right":
             return self.child.evaluate(input_val)[-1]
+        elif self.operator == "upper":
+            return self.child.evaluate(input_val).upper()
+        elif self.operator == "lower":
+            return self.child.evaluate(input_val).lower()
+        elif self.operator == "trim":
+            return self.child.evaluate(input_val).strip()
 
         # Binary
         if self.operator == "concat":
@@ -167,6 +179,12 @@ class StringSyntaxTree(AbstractSyntaxTree):
             return f"Left({self.child.construct()})"
         elif self.operator == "right":
             return f"Right({self.child.construct()})"
+        elif self.operator == "upper":
+            return f"Upper({self.child.construct()})"
+        elif self.operator == "lower":
+            return f"Lower({self.child.construct()})"
+        elif self.operator == "trim":
+            return f"Trim({self.child.construct()})"
 
         # Binary
         if self.operator == "concat":
