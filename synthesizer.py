@@ -24,14 +24,23 @@ class Synthesizer:
             ]
         elif ast is StringSyntaxTree:
             self.terminal_nodes = []
+            max_word_len = 0
             for inp in self.inputs:
                 if type(inp) is list:
                     assert len(inp) == 2
+                    max_word_len = max(max_word_len, len(inp[0]), len(inp[1]))
                     self.terminal_nodes.append(ast(operator="input_x", child=inp[0]))
                     self.terminal_nodes.append(ast(operator="input_y", child=inp[1]))
                 elif type(inp) is str:
+                    max_word_len = max(max_word_len, len(inp))
                     self.terminal_nodes.append(ast(operator="input", child=inp))
+            # Whitespace
             self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=" "))
+            # Left/Right quantity
+            # for i in range(max_word_len):
+            #     self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=i))
+            self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=1))
+            self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=2))
         
         self.plist = self.terminal_nodes
         # Horribly hacky way of getting operators
@@ -50,14 +59,16 @@ class Synthesizer:
                 # print('op?', op)
                 candidate_prog = self.ast_template(op, child=child_prog)
                 expression = candidate_prog.construct()
-                if expression.startswith('Right(Input)'):
-                    print('unary Expression', expression)
+                # if expression.startswith('Right(Input)'):
+                #     print('unary Expression', expression)
                 new_plist.append(candidate_prog)
 
         # Apply binary operators
         for pair in combinations_with_replacement(self.plist, 2):
             left_prog, right_prog = pair
             for op in self.bin_ops:
+                if op in {"left", "right"}:
+                    if left_prog.operator == "identity" or right_prog.operator != "identity": continue
                 # if op == 'input' or op == 'identity': continue
                 # print('bin op', op)
                 # print('bin outer left', left_prog.operator)
@@ -65,8 +76,8 @@ class Synthesizer:
                 candidate_prog = self.ast_template(op, left=left_prog, right=right_prog)
                 expression = candidate_prog.construct()
                 # test = right_prog.construct()
-                # if test == 'Input(y)':
-                # print('bin Expression', expression)
+                # if expression.startswith('Concat(Concat(Input(x)'):
+                #     print('bin Expression', expression)
                 new_plist.append(candidate_prog)
         
         # new_plist = self.sort(new_plist)
@@ -143,18 +154,19 @@ def test_arithmetic():
 
 def test_string():
     test_pairs = [
-        # (["hello", "world"], ["h", "w"]),
-        # (["hello", "world"], ["o", "d"]),
-        # ([["hello", "you"], ["world", "domination"]], ["helloyou", "worlddomination"]),
-        # (
-        #     [["hello", "you"], ["world", "domination"]],
-        #     ["hello you", "world domination"],
-        # ),
-        # (["hello", "world", "domination"], ["ho", "wd", "dn"]),
-        # (["llms", "are", "bad"], ["ls", "ae", "bd"]),
-        # ([["the", "adults"], ["are", "talking"]], ["ta", "at"]),
+        (["hello", "world"], ["h", "w"]),
+        (["hello", "world"], ["o", "d"]),
+        ([["hello", "you"], ["world", "domination"]], ["helloyou", "worlddomination"]),
+        (
+            [["hello", "you"], ["world", "domination"]],
+            ["hello you", "world domination"],
+        ),
+        (["hello", "world", "domination"], ["ho", "wd", "dn"]),
+        (["llms", "are", "bad"], ["ls", "ae", "bd"]),
+        ([["the", "adults"], ["are", "talking"]], ["ta", "at"]),
         (["the", "adults", "are", "talking"], ["T", "A", "A", "T"]),
-        (["mUltImodAL", "ArchiTecTure"], ["ml", "ae"]),
+        (["mUltImodAL", "ArchiTecTure"], ["mu", "ar"]),
+        (["mUltImodAL", "ArchiTecTure", "pumpking", "pies"], ["ml", "ae", "pg", "ps"]),
         ([" ", " hello world   "], ["", "hello world"])
     ]
     for inputs, outputs in test_pairs:

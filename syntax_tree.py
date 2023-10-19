@@ -102,8 +102,6 @@ class StringSyntaxTree(AbstractSyntaxTree):
             "identity",
         ]
         self.unary_operators = [
-            "right",
-            "left",
             "upper",
             "lower",
             "trim",
@@ -112,14 +110,14 @@ class StringSyntaxTree(AbstractSyntaxTree):
             "input_y",
             "identity",
         ]
-        self.binary_operators = ["concat"]
+        self.binary_operators = ["concat", "right", "left"]
         self.operator = operator
         assert self.operator in self.operators
         if operator in {"input", "input_x", "input_y"}:
             self.left = None
             self.right = None
             self.child = None
-        elif operator in {"identity", "left", "right", "lower", "upper", "trim"}:
+        elif operator in {"identity", "lower", "upper", "trim"}:
             assert child is not None
             self.left = None
             self.right = None
@@ -147,10 +145,6 @@ class StringSyntaxTree(AbstractSyntaxTree):
             return input_val[1]
         elif self.operator == "identity":
             return self.child
-        elif self.operator == "left":
-            return self.child.evaluate(input_val)[0]
-        elif self.operator == "right":
-            return self.child.evaluate(input_val)[-1]
         elif self.operator == "upper":
             return self.child.evaluate(input_val).upper()
         elif self.operator == "lower":
@@ -161,6 +155,12 @@ class StringSyntaxTree(AbstractSyntaxTree):
         # Binary
         if self.operator == "concat":
             return self.left.evaluate(input_val) + self.right.evaluate(input_val)
+        elif self.operator == "left":
+            # print('self.left.evaluate(input_val)[0:self.right.evaluate(input_val)]', self.left.evaluate(input_val)[0:self.right.evaluate(input_val)])
+            return self.left.evaluate(input_val)[0:self.right.evaluate(input_val)]
+        elif self.operator == "right":
+            # print('self.left.evaluate(input_val)[-self.right.evaluate(input_val):]', self.left.evaluate(input_val)[-self.right.evaluate(input_val):])
+            return self.left.evaluate(input_val)[-self.right.evaluate(input_val):]
         else:
             assert False
 
@@ -175,10 +175,6 @@ class StringSyntaxTree(AbstractSyntaxTree):
             return "Input(y)"
         elif self.operator == "identity":
             return f"{self.child}"
-        elif self.operator == "left":
-            return f"Left({self.child.construct()})"
-        elif self.operator == "right":
-            return f"Right({self.child.construct()})"
         elif self.operator == "upper":
             return f"Upper({self.child.construct()})"
         elif self.operator == "lower":
@@ -189,8 +185,9 @@ class StringSyntaxTree(AbstractSyntaxTree):
         # Binary
         if self.operator == "concat":
             return f"Concat({self.left.construct()}, {self.right.construct()})"
+        elif self.operator == "left":
+            return f"Left({self.left.construct()}, {self.right.construct()})"
+        elif self.operator == "right":
+            return f"Right({self.left.construct()}, {self.right.construct()})"
         else:
             assert False
-
-
-# TODO: extend left/right to more than just most left and most right?
