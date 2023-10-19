@@ -164,5 +164,5 @@ def test_string():
 
 
 if __name__ == "__main__":
-    # test_arithmetic()
+    test_arithmetic()
     test_string()
