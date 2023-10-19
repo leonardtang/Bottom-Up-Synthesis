@@ -21,6 +21,9 @@ synth = Synthesizer(inputs, outputs, ArithmeticSyntaxTree)
 ```
 synth = Synthesizer(inputs, outputs, StringSyntaxTree)
 ```
+```
+result = synth.synthesize()
+```
 
 To test synthesis in both settings, run:
 ```
