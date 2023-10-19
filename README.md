@@ -1,6 +1,6 @@
 # Bottom-Up Enumerative Search
 
-> *Baby program synthesis,or is it actually SOTA?*
+> *Baby program synthesis, or is it actually SOTA?*
 
 We consider synthesizing two DSLs/Syntax Trees:
 - ArithmeticSyntaxTree, consisting of `+`, `-`, `x`, `/` operations
