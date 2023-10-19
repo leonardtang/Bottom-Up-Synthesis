@@ -44,11 +44,6 @@ class ArithmeticSyntaxTree(AbstractSyntaxTree):
         """
         Calculate the numerical value of the given program
         """
-        # print('operator', self.operator)
-        # print('left', self.left)
-        # print('right', self.right)
-
-        # Hit UnaryExpression: retrieve single numerical value
         if self.operator == "input":
             return input_val
         if self.operator == "identity":
@@ -100,6 +95,7 @@ class StringSyntaxTree(AbstractSyntaxTree):
             "input_x",
             "input_y",
             "identity",
+            "quantity"
         ]
         self.unary_operators = [
             "upper",
@@ -109,6 +105,7 @@ class StringSyntaxTree(AbstractSyntaxTree):
             "input_x",
             "input_y",
             "identity",
+            "quantity"
         ]
         self.binary_operators = ["concat", "right", "left"]
         self.operator = operator
@@ -117,7 +114,7 @@ class StringSyntaxTree(AbstractSyntaxTree):
             self.left = None
             self.right = None
             self.child = None
-        elif operator in {"identity", "lower", "upper", "trim"}:
+        elif operator in {"identity", "lower", "upper", "trim", "quantity"}:
             assert child is not None
             self.left = None
             self.right = None
@@ -145,6 +142,8 @@ class StringSyntaxTree(AbstractSyntaxTree):
             return input_val[1]
         elif self.operator == "identity":
             return self.child
+        elif self.operator == "quantity":
+            return self.child
         elif self.operator == "upper":
             return self.child.evaluate(input_val).upper()
         elif self.operator == "lower":
@@ -156,10 +155,8 @@ class StringSyntaxTree(AbstractSyntaxTree):
         if self.operator == "concat":
             return self.left.evaluate(input_val) + self.right.evaluate(input_val)
         elif self.operator == "left":
-            # print('self.left.evaluate(input_val)[0:self.right.evaluate(input_val)]', self.left.evaluate(input_val)[0:self.right.evaluate(input_val)])
             return self.left.evaluate(input_val)[0:self.right.evaluate(input_val)]
         elif self.operator == "right":
-            # print('self.left.evaluate(input_val)[-self.right.evaluate(input_val):]', self.left.evaluate(input_val)[-self.right.evaluate(input_val):])
             return self.left.evaluate(input_val)[-self.right.evaluate(input_val):]
         else:
             assert False
@@ -174,6 +171,8 @@ class StringSyntaxTree(AbstractSyntaxTree):
         elif self.operator == "input_y":
             return "Input(y)"
         elif self.operator == "identity":
+            return f"{self.child}"
+        elif self.operator == "quantity":
             return f"{self.child}"
         elif self.operator == "upper":
             return f"Upper({self.child.construct()})"

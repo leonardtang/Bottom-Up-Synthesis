@@ -37,11 +37,9 @@ class Synthesizer:
             # Whitespace
             self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=" "))
             # Left/Right quantity
-            # for i in range(max_word_len):
-            #     self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=i))
-            self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=1))
-            self.terminal_nodes.append(StringSyntaxTree(operator="identity", child=2))
-        
+            for i in range(max_word_len):
+                self.terminal_nodes.append(StringSyntaxTree(operator="quantity", child=i))
+
         self.plist = self.terminal_nodes
         # Horribly hacky way of getting operators
         self.operators = self.plist[-1].operators
@@ -54,13 +52,9 @@ class Synthesizer:
         # Apply unary operators
         for child_prog in self.plist:
             for op in self.uni_ops:
-                if op == "input" or op == "identity":
-                    continue
-                # print('op?', op)
+                if op == "input" or op == "identity": continue
+                if child_prog.operator == "quantity": continue
                 candidate_prog = self.ast_template(op, child=child_prog)
-                expression = candidate_prog.construct()
-                # if expression.startswith('Right(Input)'):
-                #     print('unary Expression', expression)
                 new_plist.append(candidate_prog)
 
         # Apply binary operators
@@ -68,20 +62,12 @@ class Synthesizer:
             left_prog, right_prog = pair
             for op in self.bin_ops:
                 if op in {"left", "right"}:
-                    if left_prog.operator == "identity" or right_prog.operator != "identity": continue
-                # if op == 'input' or op == 'identity': continue
-                # print('bin op', op)
-                # print('bin outer left', left_prog.operator)
-                # print('bin outer right', right_prog.operator)
+                    if left_prog.operator == "quantity" or right_prog.operator != "quantity": continue
+                else:
+                    if left_prog.operator == "quantity" or right_prog.operator == "quantity": continue
                 candidate_prog = self.ast_template(op, left=left_prog, right=right_prog)
-                expression = candidate_prog.construct()
-                # test = right_prog.construct()
-                # if expression.startswith('Concat(Concat(Input(x)'):
-                #     print('bin Expression', expression)
                 new_plist.append(candidate_prog)
         
-        # new_plist = self.sort(new_plist)
-        # new_plist = self.prune(new_plist)
         self.plist.extend(new_plist)
 
     def prune(self, candidates):
@@ -113,9 +99,6 @@ class Synthesizer:
             self.plist = self.prune(self.plist)
             for p in self.plist:
                 try:
-                    # print('p.evaluate on input:', self.inputs[0])
-                    # print(p.construct())
-                    # print(p.evaluate(self.inputs[0]))
                     if all(
                         [
                             p.evaluate(self.inputs[i]) == self.outputs[i]
@@ -141,7 +124,7 @@ def test_arithmetic():
         ([5, 10, 15], [1, 2, 3]),
         ([100, 50, 20], [10, 5, 2]),
         ([1, 2, 3], [3 * x + 5 for x in [1, 2, 3]]),
-        # ([1, 2, 3], [x ** 2 + 6 * x for x in [1, 2, 3]])
+        ([1, 2, 3], [x ** 2 + 6 * x for x in [1, 2, 3]])
     ]
     for inputs, outputs in test_pairs:
         print("------------------")
@@ -166,6 +149,8 @@ def test_string():
         ([["the", "adults"], ["are", "talking"]], ["ta", "at"]),
         (["the", "adults", "are", "talking"], ["T", "A", "A", "T"]),
         (["mUltImodAL", "ArchiTecTure"], ["mu", "ar"]),
+        (["hacker", "news"], ["hack", "news"]),
+        (["hacker", "news"], ["cker", "news"]),
         (["mUltImodAL", "ArchiTecTure", "pumpking", "pies"], ["ml", "ae", "pg", "ps"]),
         ([" ", " hello world   "], ["", "hello world"])
     ]
@@ -179,5 +164,5 @@ def test_string():
 
 
 if __name__ == "__main__":
-    test_arithmetic()
+    # test_arithmetic()
     test_string()
