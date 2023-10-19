@@ -8,6 +8,11 @@ We consider synthesizing two DSLs/Syntax Trees:
 
 `Synthesizer` implements bottom-up enumerative search with pruning and parsimonious priority for both DSLs.
 
+But first, there is an env file believe it or not:
+```
+conda env create --name synth --file=synth.yml
+```
+
 Given an inputs/outputs pairing and appropriate Syntax Tree, synthesize a program as follows:
 
 ```
